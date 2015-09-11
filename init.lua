@@ -1,5 +1,5 @@
 --------------------------------------------------------------------------------------------
------------------------------- Server Tools Mod ver: 1.0 :D --------------------------------
+------------------------------ Server Tools Mod ver: 1.1 :D --------------------------------
 --------------------------------------------------------------------------------------------
 --Mod by Ginger Pollard (crazyginger72)                                                   --
 --(c)2015 license: WTFPL                                                                  --
@@ -29,12 +29,21 @@
 server_tools = {}
 dofile(minetest.get_modpath("server_tools").."/settings.txt")
 if not server_tools.settings then
-	print("\n[MOD] [server_tools ver: 1.0] [WARNING] Mod can not initialize, missing \""..
+	print("\n[MOD] [server_tools ver: 1.1] [WARNING] Mod can not initialize, missing \""..
 		""..minetest.get_modpath("server_tools").."/settings.txt\"!!!!!!\n")
 	return
 end
 print("========================================================================\n"..
-	  "[MOD] [server_tools ver: 1.0] Mod initializing.....\n")
+	  "[MOD] [server_tools ver: 1.1] Mod initializing.....\n")
+
+local function explode(sep, input)
+	local t={}
+	local i=0
+	for k in string.gmatch(input,"([^"..sep.."]+)") do
+		t[i]=k;i=i+1
+	end
+	return t
+end
 
 --------------------------------------------------------------------------------------------
 -- Admin and moderator privs ---------------------------------------------------------------
@@ -110,7 +119,7 @@ minetest.register_chatcommand("time", {
 -- Add the line >> enable_privs_check_block = true to the .conf to enable this feature! ----
 --------------------------------------------------------------------------------------------
 
-local enable = minetest.setting_get("enable_privs_check_block")
+local enable = minetest.setting_getbool("enable_privs_check_block")
 if enable == true then
 	minetest.register_chatcommand("privs", {
 		params = "<name>",
@@ -124,8 +133,7 @@ if enable == true then
 			end
 			param = (param ~= "" and param or name)
 			return true, "Privileges of "..param..": "
-				..minetest.privs_to_string(
-					minetest.get_player_privs(param), ' ')
+				..minetest.privs_to_string(minetest.get_player_privs(param), ' ')
 		end,
 	})
 	print("\t>>>> \"/privs\" check will require admin level privileges!\n")
@@ -299,7 +307,7 @@ function server_tools.info_form(name, param, text)
 				""
 			)
 		else
-			minetest.chat_send_player(name, param.." is not online.")
+			return false, param.." is not online."
 		end
 	end
 end
@@ -317,9 +325,9 @@ minetest.register_chatcommand("ip", {
 	func = function(name, param)
 		if not param or param == "" then param = name end
 		if minetest.get_player_by_name(param) then
-			minetest.chat_send_player(name, "IP address of "..param.." is "..minetest.get_player_ip(param))
+			return true, "IP address of "..param.." is "..minetest.get_player_ip(param)
 		else
-			minetest.chat_send_player(name, param.." is not online.")
+			return false, param.." is not online."
 		end
 	end
 })
@@ -334,8 +342,7 @@ minetest.register_chatcommand("whereis", {
 	privs = {admin=true},
 	func = function(name, param)
 		if not param or param == "" then 
-			minetest.chat_send_player(name, "Usage: /whereis <playername> ")
-			return 
+			return false, "Usage: /whereis <playername> "
 		end
 		local player = minetest.get_player_by_name(param)
 		if player then
@@ -343,9 +350,9 @@ minetest.register_chatcommand("whereis", {
 			local px = math.floor(pos.x, 1)
 			local py = math.floor(pos.y, 1)
 			local pz = math.floor(pos.z, 1)
-			minetest.chat_send_player(name, "Location of "..param.." is ("..px.." "..py.." "..pz..")")
+			return true, "Location of "..param.." is ("..px.." "..py.." "..pz..")"
 		else
-			minetest.chat_send_player(name, param.." is not online.")
+			return false, param.." is not online."
 		end
 	end
 })
@@ -362,9 +369,9 @@ minetest.register_chatcommand("weild", {
 		if minetest.get_player_by_name(param) or not param or param == "" then
 			local item = minetest.get_player_by_name(param):get_wielded_item():get_name()
 			if item == "" then item = ".....nothing?" end
-			minetest.chat_send_player(name, param.." is holding a "..item)
+			return true, param.." is holding a "..item
 		else
-			minetest.chat_send_player(name, param.." is not online.")
+			return false, param.." is not online."
 		end
 	end
 })
@@ -381,16 +388,15 @@ minetest.register_chatcommand("removeweild", {
 		local item = minetest.get_player_by_name(param):get_wielded_item()
 		local itemname = item:get_name()
 		if item == ( "" or nil or ":" ) or not item then 
-			minetest.chat_send_player(name, "There is no weild item to remove!")
-			return
+			return false, "There is no weild item to remove!"
 		end
 		if minetest.get_player_by_name(param) or not param or param == "" then
 			minetest.get_player_by_name(param):set_wielded_item(nil)
-			minetest.chat_send_player(name, param.."'s \""..itemname.."\" was removed!")
-			minetest.chat_send_player(param, "You \""..itemname.."\" was removed by an admin!")
 			minetest.log("action", name.." has removed "..param.."'s \""..itemname.."\"!")
+			minetest.chat_send_player(param, "You \""..itemname.."\" was removed by an admin!")
+			return true, param.."'s \""..itemname.."\" was removed!"
 		else
-			minetest.chat_send_player(name, param.." is not online.")
+			return false, param.." is not online."
 		end
 	end
 })
@@ -405,22 +411,19 @@ minetest.register_chatcommand("search_inv", {
 	privs = {admin=true},
 	func = function(name, param)
 		if param == "" then
-			minetest.chat_send_player(name, "Usage: /search_inv <playername> <itemname>")
-			return
+			return false, "Usage: /search_inv <playername> <itemname>"
 		end
 		local found, _, player, itemname = param:find("^([^%s]+)%s+(.+)$")
 		if found == nil then
-			worldedit.player_notify(name, "invalid usage!")
-			return
+			return false, "invalid usage!"
 		end
 		if not minetest.get_player_by_name(player) then
-			minetest.chat_send_player(name, player.." is not online.")
-			return
+			return false, player.." is not online."
 		end
 		if minetest.get_player_by_name(player):get_inventory():contains_item("main", itemname) then
-			minetest.chat_send_player(name, player.." has the item \""..itemname.."\" in their inventory!")
+			return true, player.." has the item \""..itemname.."\" in their inventory!"
 		else
-			minetest.chat_send_player(name, player.." doesn't have a \""..itemname.."\" in their inventory!")
+			return true, player.." doesn't have a \""..itemname.."\" in their inventory!"
 		end
 	end
 })
@@ -465,7 +468,7 @@ minetest.register_chatcommand("remove_inv", {
 -- Add the line >> enable_empty_inv = true to the .conf to disable this feature! -----------
 --------------------------------------------------------------------------------------------
 
-local disable = minetest.setting_get("enable_empty_inv")
+local disable = minetest.setting_getbool("enable_empty_inv")
 if disable == true then
 	minetest.register_chatcommand("empty_inv", {
 		params = "<player> <list>",
@@ -494,7 +497,7 @@ end
 -- Player Kill and HP setting --------------------------------------------------------------
 --------------------------------------------------------------------------------------------
 
-local enable = minetest.setting_get("enable_damage")
+local enable = minetest.setting_getbool("enable_damage")
 if enable == true then
 	minetest.register_chatcommand("kill", {
 	    params = "<playername>",
@@ -502,17 +505,15 @@ if enable == true then
 	    privs = {admin=true},
 	    func = function(name, param)
 	        if param == "" then
-	            minetest.chat_send_player(name, "Usage: /kill <playername>")
-	            return
+	            return false, "Usage: /kill <playername>"
 	        end
 	        if minetest.get_player_by_name(param) then
 	        	minetest.get_player_by_name(param):set_hp(0)
-	            minetest.chat_send_player(name, param.." has been killed.")
 	            minetest.chat_send_player(param, "An admin has killed you!")
 	            minetest.log("action", name.." has killed "..param..".")
-	            return
+	            return true, param.." has been killed."
 	        elseif not minetest.get_player_by_name(param) then
-	        	minetest.chat_send_player(name, param.." isn't online.")
+	        	return false, param.." isn't online."
 	        end
 	    end
 	})
@@ -523,8 +524,7 @@ if enable == true then
 	    func = function(name, param)
 	        if minetest.get_player_by_name(name) then
 	        	minetest.get_player_by_name(name):set_hp(0)
-	            minetest.chat_send_player(name, "You have been killed.")
-	            return
+	            return true, "You have been killed."
 	        end
 	    end
 	})
@@ -535,23 +535,20 @@ if enable == true then
 	    privs = {admin=true},
 	    func = function(name, param)
 	        if param == "" then
-	            minetest.chat_send_player(name, "Usage: /sethp <playername> <value 1-20>")
-	            return
+	            return false, "Usage: /sethp <playername> <value 1-20>"
 	        end
 	        local user, hp = string.match(param, " *([%w%-]+) *(%d*)")
 	        hp = tonumber(hp)
 	        if hp == nil or hp == "" or hp >20 or hp <= 1 then
-	            minetest.chat_send_player(name, "Usage: /sethp <playername> <value 1-20>")
-	           return
+	            return false, "Usage: /sethp <playername> <value 1-20>"
 	        end
 	        if minetest.get_player_by_name(user) then
 	            minetest.get_player_by_name(user):set_hp(hp)
-	            minetest.chat_send_player(name, user.."'s HP set to "..hp..".")
 	            minetest.chat_send_player(user, name.." set your hp to "..hp.."!")
 	            minetest.log("action", name.." has set "..user.."'s HP to "..hp..".")
-	            return
+	            return true, user.."'s HP set to "..hp.."."
 	        elseif not minetest.get_player_by_name(user) then
-	        	minetest.chat_send_player(name, user.." isn't online.")
+	        	return false, user.." isn't online."
 	        end
 	    end
 	})
@@ -562,24 +559,115 @@ else
 end
 
 --------------------------------------------------------------------------------------------
+-- homes function --------------------------------------------------------------------------
+-- Add the line >> override_homes = false to the .conf to disable this feature! ------------
+--------------------------------------------------------------------------------------------
+
+local override = minetest.setting_getbool("override_homes")
+if override ~= false then
+
+	local homes_file = minetest.get_worldpath() .. "/players/"
+	local old_homes_file = minetest.get_worldpath() .. "/homes"
+
+	local function loadhome(name)
+		local input = io.open(homes_file..name..".phf", "r")
+		if input then
+			local line_out = input:read("*l")
+			if line_out then
+				local found, _, name, pos = line_out:find("^([^%s]+)%s+(.+)$")
+				io.close(input)
+				print(pos)
+				return pos
+			else
+				return 
+			end
+		end
+	end
+
+	local function savehome(name,pos)
+		if not pos then pos = minetest.get_player_by_name(name):getpos() end
+		local output = io.open(homes_file..name..".phf", "w")
+		output:write(name.." "..pos.x.." "..pos.y.." "..pos.z)
+		io.close(output)
+	end
+
+	local function importhomes(erase_old)
+		local input = io.open(old_homes_file, "r") 
+		if input then
+			repeat
+				local x = input:read("*n")
+				if x == nil then
+					break
+				end
+				local y = input:read("*n")
+				local z = input:read("*n")
+				local n = input:read("*l")
+				savehome(n:sub(2), {x=x, y=y, z=z})
+			until input:read(0) == nil
+			io.close(input)
+			if erase_old == "erase" then
+				io.open(old_homes_file, "wb"):write("Homes have been converted to the .phf format"..
+								" and stored in the /players directory of the world directory")
+				return true, "Home files imported and old file was erased!"
+			end
+			return true, "Home files imported!"
+		else
+			return false, "ERROR IMPORTING HOMES!!!"
+		end
+	end
+
+	minetest.register_chatcommand("home", {    
+		description = "Teleports you to your home.",
+		privs = {interact=true},
+		func = function(name)
+			local player = minetest.get_player_by_name(name)
+			if player then
+				local home = minetest.string_to_pos(loadhome(name))
+				if home then
+					player:setpos(home)
+					return true, "Teleporting home!"
+				else
+					return false, "Home is not set, set a home using /sethome"
+				end
+			end
+		end,
+	})
+
+	minetest.register_chatcommand("sethome", {
+		description = "Sets your home.",
+		privs = {interact=true},
+		func = function(name)
+			savehome(name)
+			return true, "Home is set!"
+		end,
+	})
+
+	minetest.register_chatcommand("importhomes", {
+		description = "Imports old homes file!",
+		params = "<erase>",
+		privs = {server=true},
+		func = function(name,param)
+			return importhomes(param)
+		end,
+	})
+
+	print("\t>>>> \"/home\" and \"/sethome\" overrides loaded!\n")
+else
+	print("\t>>>> \"/home\" and \"/sethome\" overrides not loaded!\n")
+end
+
+--------------------------------------------------------------------------------------------
 -- Time and Lag hud ------------------------------------------------------------------------
 -- Add the line >> load_time_lag_hud = false to the .conf to disable this feature! ---------
 --------------------------------------------------------------------------------------------
 
-local disable = minetest.setting_get("load_time_lag_hud")
+local disable = minetest.setting_getbool("load_time_lag_hud")
 if disable ~= false then
-    player_hud = {}
-    player_hud.time = {}
-    player_hud.lag = {}
+    local player_hud = {}
+    local player_hud.time = {}
+    local player_hud.lag = {}
     local timer = 0;
-    local function explode(sep, input)
-            local t={}
-                    local i=0
-            for k in string.gmatch(input,"([^"..sep.."]+)") do
-                t[i]=k;i=i+1
-            end
-            return t
-    end
+    
     local function floormod ( x, y )
             return (math.floor(x) % y);
     end
@@ -680,7 +768,7 @@ end
 -- Add the line >> enable_whitelist = true to the .conf to enable this feature! ------------
 --------------------------------------------------------------------------------------------
 
-local enable = minetest.setting_get("enable_whitelist")
+local enable = minetest.setting_getbool("enable_whitelist")
 if enable == true then
 	local world_path = minetest.get_worldpath()
 	local admin = minetest.setting_get("name")
@@ -753,58 +841,55 @@ end
 -- Add the line >> static_spawnpoint"_<number>" = <cords here as x y z>  to your .conf :D --
 --------------------------------------------------------------------------------------------
 
-local spawn  = minetest.setting_get("static_spawnpoint")
-local spawn2 = minetest.setting_get("static_spawnpoint_2")
-local spawn3 = minetest.setting_get("static_spawnpoint_3")
-local spawn4 = minetest.setting_get("static_spawnpoint_4")
-local spawn5 = minetest.setting_get("static_spawnpoint_5")
+if server_tools.load_spawn_cmd then --set in the settings.txt
+	local spawn  = minetest.setting_get("static_spawnpoint")
+	local spawn2 = minetest.setting_get("static_spawnpoint_2")
+	local spawn3 = minetest.setting_get("static_spawnpoint_3")
+	local spawn4 = minetest.setting_get("static_spawnpoint_4")
+	local spawn5 = minetest.setting_get("static_spawnpoint_5")
 
-minetest.register_chatcommand("spawn", {
-	params = "0/1/2/3/4/5/<blank>",
-	description = "Teleport to spawn",
-	privs = {shout=true,interact=true},
-	func = function(name, param)
-		if param == "0" or param == "1" or param == "" and spawn ~= nil then
-			local player = minetest.get_player_by_name(name)
-			minetest.chat_send_player(name, "Teleporting to spawn...")
-			player:setpos(minetest.string_to_pos(spawn))
-			return true	
-		elseif param == "2" and spawn2 ~= nil then
-			local player = minetest.get_player_by_name(name)
-			minetest.chat_send_player(name, "Teleporting to spawn 2...")
-			player:setpos(minetest.string_to_pos(spawn2))
-			return true	
-		elseif param == "3" and spawn3 ~= nil then
-			local player = minetest.get_player_by_name(name)
-			minetest.chat_send_player(name, "Teleporting to spawn 3...")
-			player:setpos(minetest.string_to_pos(spawn3))
-			return true
-		elseif param == "4" and spawn4 ~= nil then
-			local player = minetest.get_player_by_name(name)
-			minetest.chat_send_player(name, "Teleporting to spawn 4...")
-			player:setpos(minetest.string_to_pos(spawn4))
-			return true	
-		elseif param == "5" and spawn5 ~= nil then
-			local player = minetest.get_player_by_name(name)
-			minetest.chat_send_player(name, "Teleporting to spawn 5...")
-			player:setpos(minetest.string_to_pos(spawn5))
-			return true	
-		else
-			minetest.chat_send_player(name, "Invalid use of comand or spawn"..param..
-				" not set, please try the comand again or contact an admin!")
-			minetest.log("action", "[MOD ERROR] \"Spawn\" /spawn"..param.." not set!!!")
-		end
-	end,
-})
+	minetest.register_chatcommand("spawn", {
+		params = "0/1/2/3/4/5/<blank>",
+		description = "Teleport to spawn",
+		privs = {shout=true,interact=true},
+		func = function(name, param)
+			if param == "0" or param == "1" or param == "" and spawn ~= nil then
+				local player = minetest.get_player_by_name(name)
+				player:setpos(minetest.string_to_pos(spawn))
+				return true, "Teleporting to spawn ..."	
+			elseif param == "2" and spawn2 ~= nil then
+				local player = minetest.get_player_by_name(name)
+				player:setpos(minetest.string_to_pos(spawn2))
+				return true, "Teleporting to spawn 2..."	
+			elseif param == "3" and spawn3 ~= nil then
+				local player = minetest.get_player_by_name(name)
+				player:setpos(minetest.string_to_pos(spawn3))
+				return true, "Teleporting to spawn 3..."
+			elseif param == "4" and spawn4 ~= nil then
+				local player = minetest.get_player_by_name(name)
+				player:setpos(minetest.string_to_pos(spawn4))
+				return true, "Teleporting to spawn 4..."	
+			elseif param == "5" and spawn5 ~= nil then
+				local player = minetest.get_player_by_name(name)
+				player:setpos(minetest.string_to_pos(spawn5))
+				return true, "Teleporting to spawn 5..."
+			else
+				minetest.log("action", "[MOD ERROR] \"Spawn\" /spawn"..param.." not set!!!")
+				return false, "Invalid use of comand or spawn"..param..
+					" not set, please try the comand again or contact an admin!"
+			end
+		end,
+	})
 
-if spawn or spawn2 or spawn3 or spawn4 or spawn5 then
-	local s1,s2,s3,s4,s5
-	if spawn  then s1 = "1"  else s1 = "" end
-	if spawn2 then s2 = " 2" else s2 = "" end
-	if spawn3 then s3 = " 3" else s3 = "" end
-	if spawn4 then s4 = " 4" else s4 = "" end
-	if spawn5 then s5 = " 5" else s5 = "" end
-	print("\t>>>> \"/spawn("..s1..s2..s3..s4..s5..")\" Loaded!\n")
+	if spawn or spawn2 or spawn3 or spawn4 or spawn5 then
+		local s1,s2,s3,s4,s5
+		if spawn  then s1 = "1"  else s1 = "" end
+		if spawn2 then s2 = " 2" else s2 = "" end
+		if spawn3 then s3 = " 3" else s3 = "" end
+		if spawn4 then s4 = " 4" else s4 = "" end
+		if spawn5 then s5 = " 5" else s5 = "" end
+		print("\t>>>> \"/spawn("..s1..s2..s3..s4..s5..")\" Loaded!\n")
+	end
 end
 
 --------------------------------------------------------------------------------------------
@@ -813,7 +898,7 @@ end
 --------------------------------------------------------------------------------------------
 
 local violationlog = minetest.get_worldpath().."/violationlog.txt"
-local disable = minetest.setting_get("disable_profanity_filter")
+local disable = minetest.setting_getbool("disable_profanity_filter")
 if disable ~= true then
 
 function violation(name, type, msg)
@@ -835,8 +920,7 @@ end
 				violation(player:get_player_name(), "chat", message)
 				minetest.log("action", "[ALERT!!!] \"profanity or bad words!!\" "..player:get_player_name()..
 					" is in violation!!!")
-				minetest.chat_send_player(player:get_player_name(), reason.."!")
-				return false
+				return false, reason.."!"
 			end
 		end
 	end)
@@ -858,19 +942,18 @@ end
 					violation(player:get_player_name(), "/msg", "to:"..name..", "..message)
 					minetest.log("action", "[ALERT!!!] \"profanity or bad words!!\" "..player:get_player_name()..
 					" is in violation!!!")
-					minetest.chat_send_player(player:get_player_name(), reason..", your message will not be sent!!!")
-					return 
+					return false, reason..", your message will not be sent!!!"
 				end
 			end
 			if minetest.get_player_by_name(sendto) then
 				minetest.log("action", "PM from "..name.." to "..sendto..": "..message)
 				minetest.chat_send_player(sendto, "PM from "..name..": "..message)
-				minetest.chat_send_player(name, "Message sent")
+				return true, "Message sent"
 			else
-				minetest.chat_send_player(name, "The player "..sendto.." is not online")
+				return false, "The player "..sendto.." is not online"
 			end
 		else
-			minetest.chat_send_player(name, "Invalid usage, see /help msg")
+			return false, "Invalid usage, see /help msg"
 		end
 	end,
 })
@@ -890,8 +973,7 @@ minetest.register_chatcommand("me", {
 				violation(player:get_player_name(), "/me", param)
 				minetest.log("action", "[ALERT!!!] \"profanity or bad words!!\" "..player:get_player_name()..
 					" is in violation!!!")
-				minetest.chat_send_player(player:get_player_name(), reason..", your action will not be shown!!!")
-				return 
+				return false, reason..", your action will not be shown!!!"
 			end
 		end
 		minetest.chat_send_all("* "..name.." "..param)
@@ -958,7 +1040,7 @@ end
 -- Add the line >> disable_playername_filter = false to the .conf to disable this feature! -
 --------------------------------------------------------------------------------------------
 
-local disable = minetest.setting_get("disable_playername_filter")
+local disable = minetest.setting_getbool("disable_playername_filter")
 if disable ~= true then
 	minetest.register_on_prejoinplayer(function(name, ip)
 		local lname = name:lower()
@@ -978,7 +1060,7 @@ end
 -- Add the line >> disable_playername_case = false to the .conf to disable this feature! ---
 --------------------------------------------------------------------------------------------
 
-local disable = minetest.setting_get("disable_playername_case")
+local disable = minetest.setting_getbool("disable_playername_case")
 if disable ~= true then
 	minetest.register_on_prejoinplayer(function(name, ip)
 		local lname = name:lower()

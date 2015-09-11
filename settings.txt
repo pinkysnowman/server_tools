@@ -4,6 +4,9 @@
 
 server_tools.settings = true
 
+-- load /spawn included in this mod
+server_tools.load_spawn_cmd = true
+
 -- Color for Owner's nametag 
 server_tools.o_color = {a=255, r=255, g=000, b=255}
 
@@ -47,8 +50,10 @@ server_tools.disallowed_words = {
 	["[n]+[u]+[d]+[e3]"]            = "sex or sexual talk is not allowed!!",
 	["[n]+[a4]+[k]+[e3]+[d]"]       = "sex or sexual talk is not allowed!!",
 	["[t]+[o0]+[p]+[li1]+[e3]+[s5]"]= "sex or sexual talk is not allowed!!",
+	["[v]+[il1]+[r]+[g]+[il1]+[n]"] = "sex or sexual talk is not allowed!!",
 	["[p]+[a4]+[n]+[t]+[il1]+[e3]"] = "sex or sexual talk is not allowed!!",
-	["[c]+[l]+[i]+[t]"]             = "sex or sexual talk is not allowed!!"
+	["[c]+[l]+[i]+[t]"]             = "sex or sexual talk is not allowed!!",
+	["[r]+[a4]+[p]+[3e]"]           = "sex or sexual talk is not allowed!!"
 }
 
 -- disallowed name filter list
@@ -75,6 +80,13 @@ server_tools.disallowed_names = {
 	["[a4]+[n]+[a4]+[li1]"]                         = "sex or sexual words are not allowed!!",
 	["[b]+[r]+[e3]+[a4]+[s5]+[t]"]                  = "sex or sexual words are not allowed!!",
 	["[s5]+[li1]+[u]+[t]"]                          = "sex or sexual words are not allowed!!",
+	["[n]+[u]+[d]+[e3]"]                            = "sex or sexual words are not allowed!!",
+	["[n]+[a4]+[k]+[e3]+[d]"]                       = "sex or sexual words are not allowed!!",
+	["[t]+[o0]+[p]+[li1]+[e3]+[s5]"]                = "sex or sexual words are not allowed!!",
+	["[v]+[il1]+[r]+[g]+[il1]+[n]"]                 = "sex or sexual words are not allowed!!",
+	["[p]+[a4]+[n]+[t]+[il1]+[e3]"]                 = "sex or sexual words are not allowed!!",
+	["[c]+[l]+[i]+[t]"]                             = "sex or sexual words are not allowed!!",
+	["[r]+[a4]+[p]+[3e]"]                           = "sex or sexual words are not allowed!!",
 	["[a4]+[db]+[m]+[1li]+[nm]"]                    = "Admin names are not allowed!!",
 	["[s5]+[e3]+[r]+[v]+[e3]+[r]"]                  = "Server names are not allowed!!",
 	["[g]+[u]+[e3]+[s5]+[t]"]                       = "Guest names are not allowed!!",
