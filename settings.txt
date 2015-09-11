@@ -1,0 +1,82 @@
+---------------------------------------------------------------------------------------------
+-- Settings for "server_tools" mod ----------------------------------------------------------
+---------------------------------------------------------------------------------------------
+
+server_tools.settings = true
+
+-- Color for Owner's nametag 
+server_tools.o_color = {a=255, r=255, g=000, b=255}
+
+--Color for admin nametags
+server_tools.a_color = {a=255, r=255, g=000, b=000}
+
+-- Color for moderator nametags
+server_tools.m_color = {a=255, r=000, g=000, b=255}
+
+-- Color list for inventory highlighing
+server_tools.inv_hl = { 	
+	["maptools"]    = "#cc0000",
+	["admin"]       = "#cc0000",
+	["tnt"]         = "#ccaa00"
+}
+
+-- disallowed word filter list
+
+server_tools.disallowed_words = { 	
+	["[d]+[1il]+[c]+[k]+"]          = "the word dick is not allowed",
+	["[c]+[u]+[n]+[t]+"]            = "the word cunt is not allowed",
+	["[n]+[1il]+[g]+[e3]+[r]+"]     = "racist words are not allowed",
+	["[s5]+[h]+[1li]+[t]+"]         = "the word shit is not allowed",
+	["[p]+[u]+[s5]+[y]+"]           = "the word pussy is not allowed",
+	["[f]+[u]+[c]+[k]+"]            = "the word fuck is not allowed",
+	["[f]+[u]+[k]+"]                = "the word fuck is not allowed",
+	["[n]+[i1l]+[g]+[a4]+"]         = "racist words are not allowed",
+    ["[t]+[w]+[4a]+[t]+"]           = "the word twat is not allowed",
+    ["[c]+[o0]+[c]+[k]+"]           = "the word cock is not allowed",
+    ["[b]+[i1l]+[t]+[c]+[h]+"]      = "the word bitch is not allowed",
+	["[s5]+[e3]+[x]"]               = "sex or sexual talk is not allowed!!",
+	["[w]+[h]+[0o]+[r]+[3e]"]       = "sex or sexual talk is not allowed!!",
+	["[b]+[j]"]                     = "sex or sexual talk is not allowed!!",
+	["[0o]+[r]+[a4]+[li1]"]         = "sex or sexual talk is not allowed!!",
+	["[h]+[0o]+[k]+[u]+[p]"]        = "dating or \"hookups\" are not allowed",
+	["[p]+[e3]+[n]+[1il]+[s5]"]     = "sex or sexual talk is not allowed!!",
+	["[v]+[a4]+[g]+[1il]+[n]+[a4]"] = "sex or sexual talk is not allowed!!",
+	["[a4]+[n]+[a4]+[li1]"]         = "sex or sexual talk is not allowed!!",
+	["[b]+[r]+[e3]+[a4]+[s5]+[t]"]  = "sex or sexual talk is not allowed!!",
+	["[s5]+[li1]+[u]+[t]"]          = "sex or sexual talk is not allowed!!",
+	["[n]+[u]+[d]+[e3]"]            = "sex or sexual talk is not allowed!!",
+	["[n]+[a4]+[k]+[e3]+[d]"]       = "sex or sexual talk is not allowed!!",
+	["[t]+[o0]+[p]+[li1]+[e3]+[s5]"]= "sex or sexual talk is not allowed!!",
+	["[p]+[a4]+[n]+[t]+[il1]+[e3]"] = "sex or sexual talk is not allowed!!",
+	["[c]+[l]+[i]+[t]"]             = "sex or sexual talk is not allowed!!"
+}
+
+-- disallowed name filter list
+
+server_tools.disallowed_names = { 	
+	["[d]+[1il]+[c]+[k]+"]                          = "the word dick is not allowed",
+	["[c]+[u]+[n]+[t]+"]                            = "the word cunt is not allowed",
+	["[n]+[1il]+[g]+[e3]+[r]+"]                     = "racist words are not allowed",
+	["[s5]+[h]+[1li]+[t]+"]                         = "the word shit is not allowed",
+	["[p]+[u]+[s5]+[y]+"]                           = "the word pussy is not allowed",
+	["[f]+[u]+[c]+[k]+"]                            = "the word fuck is not allowed",
+	["[f]+[u]+[k]+"]                                = "the word fuck is not allowed",
+	["[n]+[i1l]+[g]+[a4]+"]                         = "racist words are not allowed",
+    ["[t]+[w]+[4a]+[t]+"]                           = "the word twat is not allowed",
+    ["[c]+[o0]+[c]+[k]+"]                           = "the word cock is not allowed",
+    ["[b]+[i1l]+[t]+[c]+[h]+"]                      = "the word bitch is not allowed",
+	["[s5]+[e3]+[x]"]                               = "sex or sexual words are not allowed!!",
+	["[w]+[h]+[0o]+[r]+[3e]"]                       = "sex or sexual words are not allowed!!",
+	["[b]+[j]"]                                     = "sex or sexual words are not allowed!!",
+	["[0o]+[r]+[a4]+[li1]"]                         = "sex or sexual words are not allowed!!",
+	["[h]+[0o]+[k]+[u]+[p]"]                        = "names containing \"hookups\" are not allowed",
+	["[p]+[e3]+[n]+[1il]+[s5]"]                     = "sex or sexual words are not allowed!!",
+	["[v]+[a4]+[g]+[1il]+[n]+[a4]"]                 = "sex or sexual words are not allowed!!",
+	["[a4]+[n]+[a4]+[li1]"]                         = "sex or sexual words are not allowed!!",
+	["[b]+[r]+[e3]+[a4]+[s5]+[t]"]                  = "sex or sexual words are not allowed!!",
+	["[s5]+[li1]+[u]+[t]"]                          = "sex or sexual words are not allowed!!",
+	["[a4]+[db]+[m]+[1li]+[nm]"]                    = "Admin names are not allowed!!",
+	["[s5]+[e3]+[r]+[v]+[e3]+[r]"]                  = "Server names are not allowed!!",
+	["[g]+[u]+[e3]+[s5]+[t]"]                       = "Guest names are not allowed!!",
+	["[0-9].-[0-9].-[0-9].-[0-9].-[0-9].-[0-9]"]   = "More then 5 numbers is not allowed!!"
+}
