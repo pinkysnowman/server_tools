@@ -17,8 +17,11 @@
 -- ability to set nametag colors of owner, admin and moderators, a full GUI player info   --
 -- display and the ability to set up to 5 different /spawn locations.                     --
 --                                                                                        --
+-- Mod is fully compatable with the unified_inventory gui and adds functions to it!       --
+--                                                                                        --
 -- The white list, time and lag HUD, "/empty_inv" feature, "/privs" blocker function,     --
--- colored nametags function and profanity filter can be disabled or enabled via the .conf--
+-- colored nametags function, selective PvP function and profanity filter can be disabled --
+-- or enabled via the .conf                                                               --
 --                                                                                        --
 --------------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------------
@@ -312,6 +315,23 @@ function server_tools.info_form(name, param, text)
 	end
 end
 
+if unified_inventory then
+	unified_inventory.register_button("server_tools_player_info", {
+		type = "image",
+		image = "server_tools_info.png",
+		action = function(player)
+			local name = player:get_player_name()
+			if minetest.check_player_privs(name, {admin=true}) then
+				server_tools.info_form(name)
+			else
+				minetest.chat_send_player(name,"This feature requires admin privilege!")
+			end
+		end,
+	})
+	print("\t>>>> unified_inventory button for player information is available!\n")
+
+end
+
 print("\t>>>> GUI for player information is available!\n")
 
 --------------------------------------------------------------------------------------------
@@ -358,6 +378,83 @@ minetest.register_chatcommand("whereis", {
 })
 
 --------------------------------------------------------------------------------------------
+-- wherewas feature ------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------
+
+local pl_was = {}
+local pl_was_changed = false
+local pl_was_file = minetest.get_worldpath() .. "/pl_was.plf"
+
+local function load_pl_was()
+	local input = io.open(pl_was_file, "r")
+	if input then
+		repeat
+			local line_out = input:read("*l")
+			if line_out == nil then
+				break
+			end
+			local found, _, name, pos = line_out:find("^([^%s]+)%s+(.+)$")
+			if not found then
+				return
+			end
+			pl_was[name] = minetest.string_to_pos(pos)
+		until input:read(0) == nil
+		io.close(input)
+	end
+end
+
+load_pl_was()
+
+local function save_pl_was()
+	local output = io.open(pl_was_file, "w")
+	local data = {}
+	for i, v in pairs(pl_was) do
+		table.insert(data,string.format("%s %.1f %.1f %.1f", i,v.x,v.y,v.z))
+	end
+	output:write(table.concat(data,"\n"))
+	io.close(output)
+	return
+end
+
+minetest.register_chatcommand("wherewas", {
+	params = "<playername>",
+	description = "Shows a players last known location.",
+	privs = {admin=true},
+	func = function(name, param)
+		if not param or param == "" then 
+			return false, "Usage: /wherewas <playername> "
+		end
+		local pos = pl_was[param]
+		if pos then
+			local px = math.floor(pos.x, 1)
+			local py = math.floor(pos.y, 1)
+			local pz = math.floor(pos.z, 1)
+			return true, "Last known location of "..param.." is ("..px.." "..py.." "..pz..")"
+		else
+			return false, param.." doesn't have a last know location. Player may still be online, try using /whereis."
+		end
+	end
+})
+
+minetest.register_on_leaveplayer(function(player)
+	local name = player:get_player_name()
+	local pos = player:getpos()
+	pl_was[name] = pos
+	pl_was_changed = true
+end)
+
+minetest.register_on_shutdown(function()
+	save_pl_was()
+end)
+
+minetest.register_globalstep(function ( dtime )
+	if pl_was_changed == true then
+		save_pl_was()
+		pl_was_changed = false
+	end
+end)
+
+--------------------------------------------------------------------------------------------
 -- Weild item lookup feature ---------------------------------------------------------------
 --------------------------------------------------------------------------------------------
 
@@ -393,7 +490,7 @@ minetest.register_chatcommand("removeweild", {
 		if minetest.get_player_by_name(param) or not param or param == "" then
 			minetest.get_player_by_name(param):set_wielded_item(nil)
 			minetest.log("action", name.." has removed "..param.."'s \""..itemname.."\"!")
-			minetest.chat_send_player(param, "You \""..itemname.."\" was removed by an admin!")
+			minetest.chat_send_player(param, "Your \""..itemname.."\" was removed by an admin!")
 			return true, param.."'s \""..itemname.."\" was removed!"
 		else
 			return false, param.." is not online."
@@ -576,7 +673,6 @@ if override ~= false then
 			if line_out then
 				local found, _, name, pos = line_out:find("^([^%s]+)%s+(.+)$")
 				io.close(input)
-				print(pos)
 				return pos
 			else
 				return 
@@ -731,11 +827,11 @@ if disable ~= false then
     end
     local function updatehud(player, dtime)
             local name = player:get_player_name()
-            timer = timer + dtime;
-            if (timer >= 1.0) then
-                    timer = 0;
-                    if player_hud_time[name] then player:hud_change(player_hud_time[name], "text", get_time()) end
-                    if player_hud_lag[name] then player:hud_change(player_hud_lag[name], "text", get_lag()) end
+            if player_hud_time[name] then 
+            	player:hud_change(player_hud_time[name], "text", get_time()) 
+            end
+            if player_hud_lag[name] then 
+            	player:hud_change(player_hud_lag[name], "text", get_lag()) 
             end
     end
     local function removehud(player)
@@ -748,10 +844,14 @@ if disable ~= false then
             end
     end
     minetest.register_globalstep(function ( dtime )
+    	timer = timer + dtime
+        if (timer >= 1.0) then
+        	timer = 0
             for _,player in ipairs(minetest.get_connected_players()) do
                     updatehud(player, dtime)
             end
-    end);
+        end
+    end)
     minetest.register_on_joinplayer(function(player)
             minetest.after(0,generatehud,player)
     end)
@@ -919,7 +1019,7 @@ if disable ~= true then
 		local lmessage = message:lower()
 		for word, reason in pairs(server_tools.disallowed_words) do
 			if lmessage:find(word) then
-				minetest.log("action", "[ALERT!!!] \"profanity or bad words!!\" "..player:get_player_name()..
+				minetest.log("action", "[ALERT!!!] \"profanity or bad words!!\" "..name..
 					" is in violation!!!")
 				if minetest.check_player_privs(name, {admin=true})
 				or minetest.check_player_privs(name, {unfiltered=true}) then
@@ -927,7 +1027,7 @@ if disable ~= true then
 				else
 					local player = minetest.get_player_by_name(name)
 					violation(player:get_player_name(), "chat", message)
-					minetest.chat_send_player(name, reason.."!")
+					minetest.chat_send_player(name, "Your message will not be shown, "..reason.."!")
 					return true
 				end
 			end
@@ -1094,6 +1194,139 @@ if disable ~= true then
 else
 	print("\t>>>> Playername \"CASE\" sensitive not Loaded!\n")
 end
+
+--------------------------------------------------------------------------------------------
+-- Selective PvP function ------------------------------------------------------------------
+-- Add the line >> disable_selective_pvp = true to the .conf to disable this feature! ------
+--------------------------------------------------------------------------------------------
+
+local pvp_bar = {
+	physical = false,
+	collisionbox = {x = 0, y = 0, z = 0},
+	visual = "sprite",
+	textures = {"server_tools_pvp.png"},
+	visual_size = {x = 0.5, y = 0.3, z = 0.3},
+	wielder = nil,
+}
+
+local pvp_enable = {}
+
+function pvp_bar:on_step(dtime)
+	local wielder = self.wielder or "none"
+	if wielder == (nil or "none") then	
+		self.object:remove()
+		return
+	elseif not minetest.get_player_by_name(wielder)  then
+		self.object:remove()
+		return
+	end
+	if pvp_enable[wielder] == "disabled" then
+		self.object:set_properties({textures = {"server_tools_blank.png"}})
+	else
+		self.object:set_properties({textures = {"server_tools_pvp.png"}})
+	end
+end
+
+minetest.register_entity("server_tools:pvpbar", pvp_bar)
+
+local disable = minetest.setting_getbool("disable_selective_pvp")
+if not disable and minetest.setting_getbool("enable_damage") and minetest.setting_getbool("enable_pvp") then
+
+	function server_tools.set_pvp(name, param)
+		pvp_enable[name] = param
+		return "Your PvP is "..param.."!"
+	end
+
+	local function add_pvp_bar(pl)
+			local plname = pl:get_player_name()
+			local pos = pl:getpos()
+			local ent = minetest.env:add_entity(pos, "server_tools:pvpbar")
+			server_tools.set_pvp(plname, "disabled")
+			if ent ~= nil then
+				ent:set_attach(pl, "", {x = 0, y = 9, z = 0}, {x = 0, y = 0, z = 0})
+				ent = ent:get_luaentity()
+				ent.wielder = plname
+			end
+	end
+
+	minetest.register_on_joinplayer(add_pvp_bar)
+
+	minetest.register_on_leaveplayer(function(player)
+		local plname = player:get_player_name()
+		server_tools.set_pvp(plname, "disabled")
+	end)
+
+	minetest.register_chatcommand("pvp", {
+		description = "Enables PvP for you.",
+		params = "<on|off>",
+		privs = {interact=true},
+		func = function(name, param)
+			param = param:lower()
+			if param == "off" then
+				return true, server_tools.set_pvp(name, "disabled")
+			elseif param == "on" then
+				return true, server_tools.set_pvp(name, "enabled")
+			else
+				return false, "Your PvP is set to "..pvp_enable[name].." Usage: /pvp on to enable or /pvp off to disable."
+			end
+		end
+	})
+
+	minetest.register_on_punchplayer(
+		function(player, hitter, time_from_last_punch, tool_capabilities, dir, damage, pvp)
+		local h_name = hitter:get_player_name()
+		local p_name = player:get_player_name()
+		if not hitter:is_player() then
+			return false
+		else
+			if pvp_enable[h_name] == "disabled" then
+				if time_from_last_punch > 3 or time_from_last_punch == nil then
+					minetest.chat_send_player(h_name, "You have PvP disabled!")
+				end
+				return true
+			elseif pvp_enable[p_name] == "disabled" then
+				if time_from_last_punch > 3 or time_from_last_punch == nil then
+					minetest.chat_send_player(h_name, "Player has PvP disabled!")
+				end
+				return true
+			else
+				return false
+			end
+		end
+	end)
+
+	if unified_inventory then
+		unified_inventory.register_button("server_tools_toggle_pvp", {
+			type = "image",
+			image = "server_tools_pvp.png",
+			action = function(player)
+				local plname = player:get_player_name()
+				if pvp_enable[plname] == "disabled" then
+					minetest.chat_send_player(plname, server_tools.set_pvp(plname, "enabled"))
+				else
+					minetest.chat_send_player(plname, server_tools.set_pvp(plname, "disabled"))
+				end
+			end,
+		})
+		print("\t>>>> unified_inventory PvP toggle button is available!\n")
+
+	end
+
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 --------------------------------------------------------------------------------------------
 

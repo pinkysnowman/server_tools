@@ -1,38 +1,43 @@
 --------------------------------------------------------------------------------------------
------------------------------- Server Tools Mod ver: 1.0 :D --------------------------------
+----------------------------   Server Tools Mod ver: 1.1 :D   ------------------------------
 --------------------------------------------------------------------------------------------
-Mod by Ginger Pollard (crazyginger72)                                                   
-(c)2015 license: WTFPL 
-
- This mod adds some useful features and comands to the game as well as an optional      
- profanity and language filter that over rides the /me and /msg functions to help block 
- un desired messages from being sent, also it reports violations to the minetest log!   
-                                                                                        
- The mod also adds a time and lag hud, white list for players, the ability to kill or  
- set a players hp, the ability to look a players IP address, the ability to get players 
- location, the ability to see what a player is weilding, the ability to remove a        
- players weild item, the ability to search a players inventory for an item, the ability 
- to remove an item(s) from a players inventory, the ability to set time by the          
- "HH:MM am/pm" format, the ability to only let admin use "/privs" to view others        
- privileges, the ability to empty a players inventory list by "item_list" name and the  
- ability to set up to 5 different /spawn locations.                                     
-                                                                                        
- The white list, time and lag HUD, "/empty_inv" feature, "/privs" blocker function and  
- profanity filter can be disabled or enabled via the .conf
- 
- -------------------------------------------------------------------------------------------
- -------------------------------------------------------------------------------------------
- -------------------------------------------------------------------------------------------
+   Mod by Ginger Pollard (crazyginger72)                                                    
+   (c)2015 license: WTFPL                                                                   
+   This mod adds some useful features and comands to the game as well as an optional        
+   profanity and language filter that over rides the /me and /msg functions to help block   
+   un desired messages from being sent, also it reports violations to the minetest log!     
+                                                                                            
+   The mod also adds a time and lag hud, white list for players, the ability to kill or     
+   set a players hp, the ability to look a players IP address, the ability to get players   
+   location, the ability to see what a player is weilding, the ability to remove a          
+   players weild item, the ability to search a players inventory for an item, the ability   
+   to remove an item(s) from a players inventory, the ability to set time by the            
+   "HH:MM am/pm" format, the ability to only let admin use "/privs" to view others          
+   privileges, the ability to empty a players inventory list by "item_list" name, the       
+   ability to set nametag colors of owner, admin and moderators, a full GUI player info     
+   display and the ability to set up to 5 different /spawn locations.                       
+                                                                                            
+   Mod is fully compatable with the unified_inventory gui and adds functions to it!         
+                                                                                            
+   The white list, time and lag HUD, "/empty_inv" feature, "/privs" blocker function,       
+   colored nametags function, selective PvP function and profanity filter can be disabled   
+   or enabled via the .conf                                                                 
+                                                                                            
+--------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------
 
 Special privs: 
-	"admin"
+	"admin"          >>> Gives you full access to this mods features!
+	"mod"            >>> Is used to destinguish moderators (more features to be addded)
+	"unfiltered"     >>> Lets you say what you want in chat and bypass the filter feature!
 
 Comands and usage:
-	/settime >> Sets game time via HH:MM AM/PM instead of a value.
-	         ex: /time 9:26 pm, 7:14, 16:28 or os
-	         (if am/pm is blank it will default to am)
-	         (also works woth 24hr time inputs)
-	         ("os" sets time to the time of the local machine)
+	time >> Sets game time via HH:MM AM/PM instead of a value.
+	     ex: /time 9:26 pm, 7:14, 16:28 or os
+	     (if am/pm is blank it will default to am)
+	     (also works woth 24hr time inputs)
+	     ("os" sets time to the time of the local machine)
 
 	/ip >> Shows your IP address or the IP address of a player.
 	    ex: /ip or /ip <playername>
@@ -79,6 +84,16 @@ Comands and usage:
 	       (if number is blank, is a 1 or a 0 then the normal spawn is used)
 	       (you may set up to 5 spawn locations)
 	       (automatically checks for multiple )
+
+	/info >> This brings up the formspec GUI to see a players information
+		     and use the many features of the GUI.
+		  (if unified_inventory is loaded you will have a player info button
+		   on the inventory formspec to bring up the GUI)
+
+	/pvp >> This allows a player to toggle the selective PvP
+	     ex: /pvp on or /pvp off
+	     (if unified_inventory is loaded you will have a PvP button on the 
+	     inventory to toggle your PvP enable)
 
 
 
