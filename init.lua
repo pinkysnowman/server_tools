@@ -268,44 +268,44 @@ function server_tools.info_form(name, param, text)
 					inv_list = inv_list..","..t_color..item_name
 				end
 			end
-			minetest.show_formspec(name, "server_tools:info_form", 
-				"size[10,6]"..
-				"background[-0.25,-0.25;10.5,6.75;server_tools_bg.png^server_tools_overlay.png]"..
-				"label[0.1, 0.00;Connection]"..
-				"label[0.1, 0.25;IP address: "..info.address.."]"..
-				"label[0.1, 0.50;IP ver: "..info.ip_version.."]"..
-				"label[0.1, 0.75;Min rtt: "..info.min_rtt.."]"..
-				"label[0.1, 1.00;Max rtt: "..info.max_rtt.."]"..
-				"label[0.1, 1.25;Avg rtt: "..info.avg_rtt.."]"..
-				"label[0.1, 1.50;Time logged in: "..info.connection_uptime.."]"..
-				"label[3.75,-0.07;Player: "..param.."]"..
-				"label[6.575, 0.0;Skin                   "..dskin.."]"..
-				"image[6.575,0.075;4.0,2.1;"..skin.."]"..
-				"label[0.1, 2.25;Stats]"..
-				"label[0.1, 2.50;HP: "..player:get_hp().."]"..
-				"label[0.1, 2.75;Breath: "..player:get_breath().."]"..
-				"label[0.1, 3.00;Location: ("..px..", "..py..", "..pz..")]"..
-				"label[0.1, 3.25;Speed: "..tostring(physics.speed).."]"..
-				"label[0.1, 3.50;Jump: "..tostring(physics.jump).."]"..
-				"label[0.1, 3.75;Gravity: "..tostring(physics.gravity).."]"..
-				"label[0.1, 4.00;Sneak: "..tostring(physics.sneak).."]"..
-				"label[0.1, 4.25;Sneak glitch: "..tostring(physics.sneak_glitch).."]"..
-				"textlist[6.5,2.3;3.3,2.35;inventory;"..inv_list..";0;true]"..
-				"textlist[3.7,0.65;2.4,4.0;privs;#0000ccPrivs:,   "..
-					minetest.privs_to_string(minetest.get_player_privs(param), ',   ')..";0;true]"..
-				"label[6.9, 4.95;Admin items]"..
-				"label[6.9, 5.21;Dangerous items]"..
-				"label[6.9, 5.48;Weilded item]"..
-				"label[6.9, 5.73;Not in creative items]"..
-				"image_button_exit[0.1,5.1;1.75,0.5;server_tools_btn_.png;exit;Close]"..
-				"image_button_exit[1.7,5.1;1.75,0.5;server_tools_btn_.png;ch_player;Change Player]"..
-				"image_button_exit[0.1,5.65;1.75,0.5;server_tools_btn_.png;grant;Grant]"..
-				"image_button_exit[1.7,5.65;1.75,0.5;server_tools_btn_.png;revoke;Revoke]"..
-				"label[4.2, 5.0;"..msg.."]"..
-				"field[4.07, 5.6;2.5,1.0;input;;]"..
-				"field[4.07, -5.6;2.5,1.0;param;;"..param.."]"..
+			minetest.show_formspec(name, "server_tools:info_form", table.concat({
+				"size[10,6]",
+				"background[-0.25,-0.25;10.5,6.75;server_tools_bg.png^server_tools_overlay.png]",
+				"label[0.1, 0.00;Connection]",
+				"label[0.1, 0.25;IP address: "..info.address.."]",
+				"label[0.1, 0.50;IP ver: "..info.ip_version.."]",
+				"label[0.1, 0.75;Min rtt: "..info.min_rtt.."]",
+				"label[0.1, 1.00;Max rtt: "..info.max_rtt.."]",
+				"label[0.1, 1.25;Avg rtt: "..info.avg_rtt.."]",
+				"label[0.1, 1.50;Time logged in: "..info.connection_uptime.."]",
+				"label[3.75,-0.07;Player: "..param.."]",
+				"label[6.575, 0.0;Skin                   "..dskin.."]",
+				"image[6.575,0.075;4.0,2.1;"..skin.."]",
+				"label[0.1, 2.25;Stats]",
+				"label[0.1, 2.50;HP: "..player:get_hp().."]",
+				"label[0.1, 2.75;Breath: "..player:get_breath().."]",
+				"label[0.1, 3.00;Location: ("..px..", "..py..", "..pz..")]",
+				"label[0.1, 3.25;Speed: "..tostring(physics.speed).."]",
+				"label[0.1, 3.50;Jump: "..tostring(physics.jump).."]",
+				"label[0.1, 3.75;Gravity: "..tostring(physics.gravity).."]",
+				"label[0.1, 4.00;Sneak: "..tostring(physics.sneak).."]",
+				"label[0.1, 4.25;Sneak glitch: "..tostring(physics.sneak_glitch).."]",
+				"textlist[6.5,2.3;3.3,2.35;inventory;"..inv_list..";0;true]",
+				"textlist[3.7,0.65;2.4,4.0;privs;#0000ccPrivs:,   ",
+					minetest.privs_to_string(minetest.get_player_privs(param), ',   ')..";0;true]",
+				"label[6.9, 4.95;Admin items]",
+				"label[6.9, 5.21;Dangerous items]",
+				"label[6.9, 5.48;Weilded item]",
+				"label[6.9, 5.73;Not in creative items]",
+				"image_button_exit[0.1,5.1;1.75,0.5;server_tools_btn_.png;exit;Close]",
+				"image_button_exit[1.7,5.1;1.75,0.5;server_tools_btn_.png;ch_player;Change Player]",
+				"image_button_exit[0.1,5.65;1.75,0.5;server_tools_btn_.png;grant;Grant]",
+				"image_button_exit[1.7,5.65;1.75,0.5;server_tools_btn_.png;revoke;Revoke]",
+				"label[4.2, 5.0;"..msg.."]",
+				"field[4.07, 5.6;2.5,1.0;input;;]",
+				"field[4.07, -5.6;2.5,1.0;param;;"..param.."]",
 				""
-			)
+			}))
 		else
 			return false, param.." is not online."
 		end
@@ -643,8 +643,8 @@ if override ~= false then
 	})
 
 	minetest.register_chatcommand("importhomes", {
-		description = "Imports old homes file!",
-		params = "<erase>",
+		description = "Imports old homes file to new format!",
+		params = "<erase> | Leave blank to leave the existing homes file as it is.",
 		privs = {server=true},
 		func = function(name,param)
 			return importhomes(param)
@@ -664,8 +664,8 @@ end
 local disable = minetest.setting_getbool("load_time_lag_hud")
 if disable ~= false then
     local player_hud = {}
-    local player_hud.time = {}
-    local player_hud.lag = {}
+    local player_hud_time = {}
+    local player_hud_lag = {}
     local timer = 0;
     
     local function floormod ( x, y )
@@ -710,7 +710,7 @@ if disable ~= false then
     end
     local function generatehud(player)
             local name = player:get_player_name()
-            player_hud.time[name] = player:hud_add({
+            player_hud_time[name] = player:hud_add({
                     hud_elem_type = "text",
                     name = "player_hud:time",
                     position = {x=0.835, y=0.955},
@@ -719,7 +719,7 @@ if disable ~= false then
                     alignment = {x=0,y=0},
                     number = 0xFFFFFF,
             })
-            player_hud.lag[name] = player:hud_add({
+            player_hud_lag[name] = player:hud_add({
                     hud_elem_type = "text",
                     name = "player_hud:lag",
                     position = {x=0.835, y=0.975},
@@ -734,17 +734,17 @@ if disable ~= false then
             timer = timer + dtime;
             if (timer >= 1.0) then
                     timer = 0;
-                    if player_hud.time[name] then player:hud_change(player_hud.time[name], "text", get_time()) end
-                    if player_hud.lag[name] then player:hud_change(player_hud.lag[name], "text", get_lag()) end
+                    if player_hud_time[name] then player:hud_change(player_hud_time[name], "text", get_time()) end
+                    if player_hud_lag[name] then player:hud_change(player_hud_lag[name], "text", get_lag()) end
             end
     end
     local function removehud(player)
             local name = player:get_player_name()
-            if player_hud.time[name] then
-                    player:hud_remove(player_hud.time[name])
+            if player_hud_time[name] then
+                    player:hud_remove(player_hud_time[name])
             end
-            if player_hud.lag[name] then
-                    player:hud_remove(player_hud.lag[name])
+            if player_hud_lag[name] then
+                    player:hud_remove(player_hud_lag[name])
             end
     end
     minetest.register_globalstep(function ( dtime )
@@ -901,26 +901,35 @@ local violationlog = minetest.get_worldpath().."/violationlog.txt"
 local disable = minetest.setting_getbool("disable_profanity_filter")
 if disable ~= true then
 
-function violation(name, type, msg)
-	file = io.open(violationlog, "a")
-	file:write(os.date("["..name.."] %m/%d/%y %X: \""..type.."\" "..msg.."\n"))
-	file:close()
-end
+	minetest.register_privilege("unfiltered", {
+		description = "Bypasses the chat filter", 
+		give_to_singleplayer = true
+	})
+
+	function violation(name, type, msg)
+		file = io.open(violationlog, "a")
+		file:write(os.date("["..name.."] %m/%d/%y %X: \""..type.."\" "..msg.."\n"))
+		file:close()
+	end
 
 -- Handeler for public chat
 ---------------------------
 
---!!! Currently doesn't block the message only warn player and reports to log!!!
-
-	minetest.register_on_chat_message(function(name, message, playername, player)
+	minetest.register_on_chat_message(function(name, message)
 		local lmessage = message:lower()
 		for word, reason in pairs(server_tools.disallowed_words) do
 			if lmessage:find(word) then
-				local player = minetest.get_player_by_name(name)
-				violation(player:get_player_name(), "chat", message)
 				minetest.log("action", "[ALERT!!!] \"profanity or bad words!!\" "..player:get_player_name()..
 					" is in violation!!!")
-				return false, reason.."!"
+				if minetest.check_player_privs(name, {admin=true})
+				or minetest.check_player_privs(name, {unfiltered=true}) then
+					return false, reason.."!"
+				else
+					local player = minetest.get_player_by_name(name)
+					violation(player:get_player_name(), "chat", message)
+					minetest.chat_send_player(name, reason.."!")
+					return true
+				end
 			end
 		end
 	end)
@@ -942,7 +951,12 @@ end
 					violation(player:get_player_name(), "/msg", "to:"..name..", "..message)
 					minetest.log("action", "[ALERT!!!] \"profanity or bad words!!\" "..player:get_player_name()..
 					" is in violation!!!")
-					return false, reason..", your message will not be sent!!!"
+					if minetest.check_player_privs(name, {admin=true})
+					or minetest.check_player_privs(name, {unfiltered=true}) then
+						return true, "Message sent"
+					else
+						return false, reason..", your message will not be sent!!!"
+					end
 				end
 			end
 			if minetest.get_player_by_name(sendto) then
@@ -973,7 +987,10 @@ minetest.register_chatcommand("me", {
 				violation(player:get_player_name(), "/me", param)
 				minetest.log("action", "[ALERT!!!] \"profanity or bad words!!\" "..player:get_player_name()..
 					" is in violation!!!")
-				return false, reason..", your action will not be shown!!!"
+				if not minetest.check_player_privs(name, {admin=true})
+				and not minetest.check_player_privs(name, {unfiltered=true}) then
+					return false, reason..", your action will not be shown!!!"
+				end
 			end
 		end
 		minetest.chat_send_all("* "..name.." "..param)
