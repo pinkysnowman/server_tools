@@ -1467,6 +1467,44 @@ minetest.register_chatcommand("server", {
 })
 
 --------------------------------------------------------------------------------------------
+-- Server Delayed shutdown -----------------------------------------------------------------
+--------------------------------------------------------------------------------------------
+
+minetest.register_chatcommand("shutdown", {
+	params = "<delay_in_seconds> | Leave blank for normal shutdown",
+	description = "shutdown server",
+	privs = {server=true},
+	func = function(name, param)
+		if param ~= "" then
+			param = tonumber(param)
+			if param > 0 or param < 360 then
+				minetest.log("action", name .. " shuts down server, delayed "..param.." seconds.")
+				minetest.chat_send_all("*** Server will be shutting down in "..param.." seconds (operator request).")
+				minetest.after(param, function()
+					minetest.log("action", " shutting down server, delayed shutdown by "..name)
+					minetest.request_shutdown()
+					minetest.chat_send_all("*** Server shutting down (operator request).")
+				end)
+				local time = param
+				repeat
+					param = param-10
+					minetest.after(param, function()
+						minetest.chat_send_all("*** Server will be shutting down!!!! (operator request).")
+					end)
+				until param <= 10
+				return true, "shutdowning server down in "..time.." seconds!!!"
+			else
+				return false, "Delay time must be between 1 and 3600"
+			end
+		else
+			minetest.log("action", name.." shuts down server")
+			minetest.request_shutdown()
+			minetest.chat_send_all("*** Server shutting down (operator request).")
+		end
+	end,
+})
+
+--------------------------------------------------------------------------------------------
 -- Server welcome for new players feature --------------------------------------------------
 -- Add the line >> enable_welcome = true to the .conf to enable this feature! --------------
 -- Add the line >> welcome_msg = <message here> .conf set aditional welcome message --------
