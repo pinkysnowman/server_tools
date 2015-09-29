@@ -1,5 +1,5 @@
 --------------------------------------------------------------------------------------------
------------------------------- Server Tools Mod ver: 1.1 :D --------------------------------
+------------------------------ Server Tools Mod ver: 2.0 :D --------------------------------
 --------------------------------------------------------------------------------------------
 --Mod by Ginger Pollard (crazyginger72)                                                   --
 --(c)2015 license: WTFPL                                                                  --
@@ -32,12 +32,12 @@
 server_tools = {}
 dofile(minetest.get_modpath("server_tools").."/settings.txt")
 if not server_tools.settings then
-	print("\n[MOD] [server_tools ver: 1.1] [WARNING] Mod can not initialize, missing \""..
+	print("\n[MOD] [server_tools ver: 2.0] [WARNING] Mod can not initialize, missing \""..
 		""..minetest.get_modpath("server_tools").."/settings.txt\"!!!!!!\n")
 	return
 end
 print("========================================================================\n"..
-	  "[MOD] [server_tools ver: 1.1] Mod initializing.....\n")
+	  "[MOD] [server_tools ver: 2.0] Mod initializing.....\n")
 
 local function explode(sep, input)
 	local t={}
@@ -995,76 +995,180 @@ end
 --------------------------------------------------------------------------------------------
 -- Profanity Monitor feature! --------------------------------------------------------------
 -- Add the line >> disable_profanity_filter = false to the .conf to disable this feature! --
+-- also includes an offline message delivery system for /msg -------------------------------
 --------------------------------------------------------------------------------------------
 
 local violationlog = minetest.get_worldpath().."/violationlog.txt"
 local disable = minetest.setting_getbool("disable_profanity_filter")
-if disable ~= true then
+local disable_olm = minetest.setting_getbool("disable_offline_msgs")
+local olm_autoclear = minetest.setting_getbool("offline_msgs_auto_clear")
+local offline_msgs_file = minetest.get_worldpath() .. "/offline_msgs"
+local offline_msgs = {}
 
-	minetest.register_privilege("unfiltered", {
-		description = "Bypasses the chat filter", 
-		give_to_singleplayer = true
-	})
-
-	function violation(name, type, msg)
-		file = io.open(violationlog, "a")
-		file:write(os.date("["..name.."] %m/%d/%y %X: \""..type.."\" "..msg.."\n"))
-		file:close()
+if disable_olm ~= true then
+	local function load_offline_msg()
+		local input = io.open(offline_msgs_file, "r")
+		if input then
+			repeat
+				local line_out = input:read("*l")
+				if line_out == nil or line_out == "" then
+					break
+				end
+				local found, _, name, msg = line_out:find("^([^%s]+)%s(.+)$")
+				offline_msgs[name] = msg
+			until input:read(0) == nil
+			io.close(input)
+		end
 	end
 
--- Handeler for public chat
----------------------------
+	load_offline_msg()
 
-	minetest.register_on_chat_message(function(name, message)
-		local lmessage = message:lower()
-		for word, reason in pairs(server_tools.disallowed_words) do
-			if lmessage:find(word) then
-				minetest.log("action", "[ALERT!!!] \"profanity or bad words!!\" "..name..
-					" is in violation!!!")
-				if minetest.check_player_privs(name, {admin=true})
-				or minetest.check_player_privs(name, {unfiltered=true}) then
-					return false, reason.."!"
-				else
-					local player = minetest.get_player_by_name(name)
-					violation(player:get_player_name(), "chat", message)
-					minetest.chat_send_player(name, "Your message will not be shown, "..reason.."!")
-					return true
-				end
+	function offline_msg(sendto,name,message)
+		local prev_msg = ""
+		if offline_msgs[sendto] then
+			prev_msg = offline_msgs[sendto]..", next pm: "
+		end
+		offline_msgs[sendto] = prev_msg..os.date("PM %m/%d/%y %X from "..name..": \""..message.."\"")
+		save_offline_msgs()
+	end
+
+	function save_offline_msgs()
+		local output = io.open(offline_msgs_file, "w")
+		local data = {}
+		for i, v in pairs(offline_msgs) do
+			if v ~= "" then
+				table.insert(data,string.format("%s %s \n", i,v))
+			end
+		end
+		output:write(table.concat(data))
+		io.close(output)
+	end
+
+	minetest.register_on_joinplayer(function(player)
+		local plname = player:get_player_name()
+		if offline_msgs[plname] then
+			minetest.chat_send_player(plname, offline_msgs[plname])
+			minetest.log("action", plname.." recieved PM(s) "..offline_msgs[plname])
+			if olm_autoclear == true then
+				offline_msgs[name] = ""
+				save_offline_msgs()	
 			end
 		end
 	end)
 
+	if olm_autoclear == true then
+		print("\t>>>> Offline /msg auto clear on login is active!\n")
+	else
+		minetest.register_chatcommand("check_msg", {
+			params = "<clear>",
+			description = "Checks your offline messages.",
+			func = function(name, param)
+				if offline_msgs[name] and offline_msgs[name] ~= "" then
+					local msg = offline_msgs[name]
+					if param == "clear" then 
+						offline_msgs[name] = ""
+						save_offline_msgs()
+						return true, "Offline messages were cleared!"
+					else
+						return true, offline_msgs[name]..", To clear offline messages do /check_msg clear"
+					end
+				else
+					return false, "No messages to show!"
+				end
+			end
+		})
+	end
+
+	print("\t>>>> Offline /msg useage is available!\n")
+end
+
+function check_filter(name,msg,type,sendto)
+	if disable ~= true then
+		local to = sendto or ""
+		local lmsg = msg:lower()
+		local block = false
+		local why = ""
+		for word, reason in pairs(server_tools.disallowed_words) do
+			if lmsg:find(word) then
+				minetest.log("action", "[ALERT!!!] \"profanity or bad words!!\" "..name..
+					" is in violation!!!")
+				violation(name,type,msg,to)
+				if minetest.check_player_privs(name, {admin=true})
+				or minetest.check_player_privs(name, {unfiltered=true}) then
+					why = reason.."!"
+				else
+					block = true
+					why = reason.."!"
+				end
+			end
+		end
+		return block, why
+	end
+end
+
+minetest.register_privilege("unfiltered", {
+	description = "Bypasses the chat filter", 
+	give_to_singleplayer = true
+})
+
+function violation(name,type,msg,sendto)
+	local to = sendto or ""
+	local file = io.open(violationlog, "a")
+	file:write(os.date("["..name.."] %m/%d/%y %X: \""..type.."\""..to.." "..msg.."\n"))
+	file:close()
+end
+
+-- Handeler for public chat
+---------------------------
+
+minetest.register_on_chat_message(function(name, message)
+	local block, reason = check_filter(name,message,"chat")
+	if block == true then
+		minetest.chat_send_player(name, "This will not be shown, "..reason)
+		return true
+	elseif reason ~= "" then
+		minetest.chat_send_player(name, reason)
+		return false
+	else
+		return false
+	end
+end)
+
 -- Handeler for private chat
 ----------------------------
 
-	minetest.register_chatcommand("msg", {
+minetest.register_chatcommand("msg", {
 	params = "<name> <message>",
 	description = "Send a private message",
 	privs = {shout=true},
 	func = function(name, param)
 		local found, _, sendto, message = param:find("^([^%s]+)%s(.+)$")
 		if found then
-			local lmessage = message:lower()
-			for word, reason in pairs(server_tools.disallowed_words) do
-				if lmessage:find(word) then
-					local player = minetest.get_player_by_name(name)
-					violation(player:get_player_name(), "/msg", "to:"..name..", "..message)
-					minetest.log("action", "[ALERT!!!] \"profanity or bad words!!\" "..player:get_player_name()..
-					" is in violation!!!")
-					if minetest.check_player_privs(name, {admin=true})
-					or minetest.check_player_privs(name, {unfiltered=true}) then
-						return true, "Message sent"
-					else
-						return false, reason..", your message will not be sent!!!"
-					end
-				end
+			local block, reason = check_filter(name,message,"/msg",sendto)
+			if block == true then
+				return false, reason..", your message will not be sent!!!"
 			end
 			if minetest.get_player_by_name(sendto) then
 				minetest.log("action", "PM from "..name.." to "..sendto..": "..message)
 				minetest.chat_send_player(sendto, "PM from "..name..": "..message)
-				return true, "Message sent"
+				if reason ~= "" then
+					return true, reason..", Message sent"
+				else
+					return true, "Message sent"
+				end
 			else
-				return false, "The player "..sendto.." is not online"
+				for is_name, data in pairs(minetest.auth_table) do
+					if is_name == sendto then
+						offline_msg(sendto,name,message)
+						minetest.log("action", "PM from "..name.." to "..sendto..": "..message)
+						if reason ~= "" then
+							return true, reason..", "..sendto.." will recieve your message when they log back on!"
+						else
+							return true, sendto.." will recieve your message when they log back on!"
+						end
+					end
+				end
+				return false, "Player does not exist on this server, please check spelling and capitolization of the name!"
 			end
 		else
 			return false, "Invalid usage, see /help msg"
@@ -1080,23 +1184,17 @@ minetest.register_chatcommand("me", {
 	description = "chat action (eg. /me goes outside)",
 	privs = {shout=true},
 	func = function(name, param)
-		local lparam = param:lower()
-		for word, reason in pairs(server_tools.disallowed_words) do
-			if lparam:find(word) then
-				local player = minetest.get_player_by_name(name)
-				violation(player:get_player_name(), "/me", param)
-				minetest.log("action", "[ALERT!!!] \"profanity or bad words!!\" "..player:get_player_name()..
-					" is in violation!!!")
-				if not minetest.check_player_privs(name, {admin=true})
-				and not minetest.check_player_privs(name, {unfiltered=true}) then
-					return false, reason..", your action will not be shown!!!"
-				end
-			end
+		local block, reason = check_filter(name,param,"/me")
+		if block == true then
+			return false, "This will not be shown, "..reason
+		elseif reason ~= "" then
+			minetest.chat_send_player(name, reason)
 		end
 		minetest.chat_send_all("* "..name.." "..param)
 	end,
 })
 
+if disable ~= true then
 	print("\t>>>> Profanity filter function loaded!\n")
 else
 	print("\t>>>> Profanity filter function will not be loaded!!!\n")
@@ -1309,22 +1407,125 @@ if not disable and minetest.setting_getbool("enable_damage") and minetest.settin
 			end,
 		})
 		print("\t>>>> unified_inventory PvP toggle button is available!\n")
-
 	end
-
 end
 
+--------------------------------------------------------------------------------------------
+-- Admin tools and nodes -------------------------------------------------------------------
+--------------------------------------------------------------------------------------------
+
+minetest.register_node("server_tools:light", {
+	description = "Light node",
+	drawtype = "airlike",
+	walkable = false,
+	pointable = false,
+	light_source = 14,
+	paramtype = "light",
+	buildable_to = true,
+	sunlight_propagates = true,
+	groups = {not_in_creative_inventory=1},
+})
+
+minetest.register_tool("server_tools:pick", {
+	description = "Admin pick",
+	inventory_image = "server_tools_pick.png",
+	groups = {not_in_creative_inventory=1},
+	range = 10,
+	tool_capabilities = {
+		full_punch_interval = 0,
+		max_drop_level=3,
+	},
+})
+
+minetest.register_on_punchnode(function(pos, node, puncher)
+	local plname = puncher:get_player_name()
+	if puncher:get_wielded_item():get_name() == "server_tools:pick" and minetest.env: get_node(pos).name ~= "air" then
+		--if minetest.check_player_privs(puncher:get_player_name(), {admin=true}) then -- too slow atm
+			minetest.env:remove_node(pos)
+			minetest.log("action", plname.." digs ".. node.name.." at "..minetest.pos_to_string(pos))
+		--else
+			--minetest.chat_send_player(plname, "This tool requires the admin privilege!")
+			--minetest.log("action", plname.." trys digging ".. node.name.." at "..minetest.pos_to_string(pos))
+		--end
+	end
+end)
 
 
 
+--------------------------------------------------------------------------------------------
+-- Server announcments ---------------------------------------------------------------------
+--------------------------------------------------------------------------------------------
 
+minetest.register_chatcommand("server", {
+	params = "<message>",
+	description = "Sends message to all as ***SERVER***",
+	privs = {server=true},
+	func = function(name, param)
+		minetest.chat_send_all("***SERVER*** "..param)
+		minetest.log("action", name.." invokes /server => \""..param.."\"")
+	end,
+})
 
+--------------------------------------------------------------------------------------------
+-- Server welcome for new players feature --------------------------------------------------
+-- Add the line >> enable_welcome = true to the .conf to enable this feature! --------------
+-- Add the line >> welcome_msg = <message here> .conf set aditional welcome message --------
+--------------------------------------------------------------------------------------------
 
+local server_name = minetest.setting_get("server_name")
+local welcome = minetest.setting_get("welcome_msg") 
 
+if minetest.setting_getbool("enable_welcome") then
+	local welcome_msg = ""
+	if welcome then
+		welcome_msg = ", "..welcome
+	end
+	minetest.register_on_newplayer(function(player)
+		local plname = player:get_player_name()
+		minetest.chat_send_player("Welcome to "..server_name..welcome_msg)
+	end)
+	print("\t>>>> New player welcome message enabled!\n")
+end
 
+--------------------------------------------------------------------------------------------
+-- Player death message feature ------------------------------------------------------------
+-- Add the line >> enable_death_msg = true to the .conf to enable this feature! ------------
+--------------------------------------------------------------------------------------------
 
+if minetest.setting_getbool("enable_death_msg") then
+	minetest.register_on_dieplayer(function(player)
+		local plname = player:get_player_name()
+		minetest.chat_send_all(plname.." has died!")
+	end)
+	print("\t>>>> Player death messages enabled!\n")
+end
 
+--------------------------------------------------------------------------------------------
+-- Extended kick feature -------------------------------------------------------------------
+--------------------------------------------------------------------------------------------
 
+-- minetest.register_chatcommand("-kick", {
+-- 	params = "<name> [reason]",
+-- 	description = "kick a player",
+-- 	privs = {kick=true},
+-- 	func = function(name, param)
+-- 		local tokick, reason = param:match("([^ ]+) (.+)")
+-- 		tokick = tokick or param
+-- 		if not minetest.kick_player(tokick, reason) then
+-- 			return false, "Failed to kick player " .. tokick
+-- 		end
+-- 		local log_reason = ""
+-- 		if reason then
+-- 			log_reason = " with reason \"" .. reason .. "\""
+-- 		end
+-- 		minetest.log("action", name .. " kicks " .. tokick .. log_reason)
+-- 		return true, "Kicked " .. tokick
+-- 	end,
+-- })
+
+--------------------------------------------------------------------------------------------
+-- AFK kick feature ------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------
 
 
 
