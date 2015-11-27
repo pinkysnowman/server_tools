@@ -9,8 +9,8 @@
 --                                                                                        --
 -- The mod also adds a time and lag hud, white list for players, the ability to kill or   --
 -- set a players hp, the ability to look a players IP address, the ability to get players --
--- location, the ability to see what a player is weilding, the ability to remove a        --
--- players weild item, the ability to search a players inventory for an item, the ability --
+-- location, the ability to see what a player is wielding, the ability to remove a        --
+-- players wield item, the ability to search a players inventory for an item, the ability --
 -- to remove an item(s) from a players inventory, the ability to set time by the          --
 -- "HH:MM am/pm" format, the ability to only let admin use "/privs" to view others        --
 -- privileges, the ability to empty a players inventory list by "item_list" name, the     --
@@ -298,7 +298,7 @@ function server_tools.info_form(name, param, text)
 					minetest.privs_to_string(minetest.get_player_privs(param), ',   ')..";0;true]",
 				"label[6.9, 4.95;Admin items]",
 				"label[6.9, 5.21;Dangerous items]",
-				"label[6.9, 5.48;Weilded item]",
+				"label[6.9, 5.48;wielded item]",
 				"label[6.9, 5.73;Not in creative items]",
 				"image_button_exit[0.1,5.1;1.75,0.5;server_tools_btn_.png;exit;Close]",
 				"image_button_exit[1.7,5.1;1.75,0.5;server_tools_btn_.png;ch_player;Change Player]",
@@ -455,12 +455,12 @@ minetest.register_globalstep(function ( dtime )
 end)
 
 --------------------------------------------------------------------------------------------
--- Weild item lookup feature ---------------------------------------------------------------
+-- wield item lookup feature ---------------------------------------------------------------
 --------------------------------------------------------------------------------------------
 
-minetest.register_chatcommand("weild", {
+minetest.register_chatcommand("wield", {
 	params = "<playername>",
-	description = "Shows what a players weild item is.",
+	description = "Shows what a players wield item is.",
 	privs = {admin=true},
 	func = function(name, param)
 		if minetest.get_player_by_name(param) or not param or param == "" then
@@ -474,18 +474,18 @@ minetest.register_chatcommand("weild", {
 })
 
 --------------------------------------------------------------------------------------------
--- Remove weild item feature ---------------------------------------------------------------
+-- Remove wield item feature ---------------------------------------------------------------
 --------------------------------------------------------------------------------------------
 
-minetest.register_chatcommand("removeweild", {
+minetest.register_chatcommand("removewield", {
 	params = "<playername>",
-	description = "Removes a players weild item!",
+	description = "Removes a players wield item!",
 	privs = {admin=true},
 	func = function(name, param)
 		local item = minetest.get_player_by_name(param):get_wielded_item()
 		local itemname = item:get_name()
 		if item == ( "" or nil or ":" ) or not item then 
-			return false, "There is no weild item to remove!"
+			return false, "There is no wield item to remove!"
 		end
 		if minetest.get_player_by_name(param) or not param or param == "" then
 			minetest.get_player_by_name(param):set_wielded_item(nil)
@@ -562,10 +562,10 @@ minetest.register_chatcommand("remove_inv", {
 
 --------------------------------------------------------------------------------------------
 -- Player inventory list empty feature -----------------------------------------------------
--- Add the line >> enable_empty_inv = true to the .conf to disable this feature! -----------
+-- Add the line >> disable_empty_inv = true to the .conf to disable this feature! ----------
 --------------------------------------------------------------------------------------------
 
-local disable = minetest.setting_getbool("enable_empty_inv")
+local disable = minetest.setting_getbool("disable_empty_inv")
 if disable == true then
 	minetest.register_chatcommand("empty_inv", {
 		params = "<player> <list>",
@@ -1210,6 +1210,10 @@ local admin_color = minetest.setting_get("server_tools.admin_color")
 local mod_color = minetest.setting_get("server_tools.mod_color")
 
 minetest.register_on_joinplayer(function(player)
+	if player:get_player_name() == "Kimmy" then
+		player:set_nametag_attributes({color = {a=255, r=255, g=120, b=000})
+		return
+	end
 	if player:get_player_name() == owner_name and owner_color then
 		player:set_nametag_attributes({color = server_tools.o_color })
 		return
@@ -1471,7 +1475,7 @@ minetest.register_chatcommand("server", {
 --------------------------------------------------------------------------------------------
 
 minetest.register_chatcommand("shutdown", {
-	params = "<delay_in_seconds> | Leave blank for normal shutdown",
+	params = "<delay_in_seconds(0..360)> | Leave blank for normal shutdown",
 	description = "shutdown server",
 	privs = {server=true},
 	func = function(name, param)
@@ -1489,7 +1493,7 @@ minetest.register_chatcommand("shutdown", {
 				repeat
 					param = param-10
 					minetest.after(param, function()
-						minetest.chat_send_all("*** Server will be shutting down!!!! (operator request).")
+						minetest.chat_send_all("***Server will be shutting down!!!!***")
 					end)
 				until param <= 10
 				return true, "shutdowning server down in "..time.." seconds!!!"
