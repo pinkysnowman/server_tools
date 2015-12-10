@@ -11,7 +11,10 @@
 -- Add the line >> static_spawnpoint"_<number>" = <cords here as x y z>  to your .conf :D --
 --------------------------------------------------------------------------------------------
 
-if not minetest.get_modpath("spawn") then
+if minetest.get_modpath("spawn") then
+	table.insert(server_tools.print_out, "\t>>>> \"/spawn not loaded, \"spawn\" mod detected!")
+	return
+else
 
 	local spawn  = minetest.setting_get("static_spawnpoint")
 	local spawn1 = minetest.setting_get("static_spawnpoint_1")
@@ -20,11 +23,11 @@ if not minetest.get_modpath("spawn") then
 	local spawn4 = minetest.setting_get("static_spawnpoint_4")
 	local spawn5 = minetest.setting_get("static_spawnpoint_5")
 
-	if server_tools.interact_spawn == "false" then
+	if server_tools.interact_spawn == false then
 		spawn1 = spawn
 	end
 
-	if server_tools.load_spawn_cmd == "true" then --set in the settings.txt
+	if server_tools.load_spawn_cmd == true then --set in the settings.txt
 
 		minetest.register_chatcommand("spawn", {
 			params = "0/1/2/3/4/5/<blank>",
@@ -98,18 +101,19 @@ if not minetest.get_modpath("spawn") then
 			end,
 		})
 
-		if spawn1 or spawn2 or spawn3 or spawn4 or spawn5 then
-			local s1,s2,s3,s4,s5
-			if spawn1 then s1 = "1"  else s1 = "" end
-			if spawn2 then s2 = " 2" else s2 = "" end
-			if spawn3 then s3 = " 3" else s3 = "" end
-			if spawn4 then s4 = " 4" else s4 = "" end
-			if spawn5 then s5 = " 5" else s5 = "" end
-			print("\t>>>> \"/spawn("..s1..s2..s3..s4..s5..")\" Loaded!\n")
+		if spawn or spawn1 or spawn2 or spawn3 or spawn4 or spawn5 then
+			local s,s1,s2,s3,s4,s5
+			if spawn  then s  = "default"  else s  = "" end
+			if spawn1 then s1 = " 1"       else s1 = "" end
+			if spawn2 then s2 = " 2"       else s2 = "" end
+			if spawn3 then s3 = " 3"       else s3 = "" end
+			if spawn4 then s4 = " 4"       else s4 = "" end
+			if spawn5 then s5 = " 5"       else s5 = "" end
+			table.insert(server_tools.print_out, "\t>>>> \"/spawn("..s..s1..s2..s3..s4..s5..")\" Loaded!")
+		else
+			table.insert(server_tools.print_out, "\t>>>> \"/spawn not loaded!")
 		end
 	else
-		print("\t>>>> \"/spawn not loaded!\n")
-	end
-else
-	print("\t>>>> \"/spawn not loaded, \"spawn\" mod detected!\n")
+		table.insert(server_tools.print_out, "\t>>>> \"/spawn not loaded!")
+	end	
 end

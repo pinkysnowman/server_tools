@@ -55,9 +55,10 @@ if keyword then
 		end
 	end,
 	})
-	print("\t>>>> Interact granted by keyword enabled!\n")
+	table.insert(server_tools.print_out, "\t>>>> Interact granted by keyword enabled!\n"
+									   .."\t     *Keyword is \""..keyword.."\"")
 else
-	print("\t>>>> Interact granted by keyword disabled!\n")
+	table.insert(server_tools.print_out, "\t>>>> Interact granted by keyword disabled!")
 end
 
 minetest.register_chatcommand("set_keyword", {

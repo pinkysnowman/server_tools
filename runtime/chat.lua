@@ -71,7 +71,7 @@ if disable_olm ~= true then
 	end)
 
 	if olm_autoclear == true then
-		print("\t>>>> Offline /msg auto clear on login is active!\n")
+		table.insert(server_tools.print_out, "\t>>>> Offline /msg auto clear on login is active!")
 	else
 		minetest.register_chatcommand("check_msg", {
 			params = "<clear>",
@@ -93,7 +93,7 @@ if disable_olm ~= true then
 		})
 	end
 
-	print("\t>>>> Offline /msg useage is available!\n")
+	table.insert(server_tools.print_out, "\t>>>> Offline /msg useage is available!")
 end
 
 function check_filter(name,msg,type,sendto)
@@ -212,7 +212,7 @@ minetest.register_chatcommand("me", {
 })
 
 if disable ~= true then
-	print("\t>>>> Profanity filter function loaded!\n")
+	table.insert(server_tools.print_out, "\t>>>> Profanity filter function loaded!")
 else
-	print("\t>>>> Profanity filter function will not be loaded!!!\n")
+	table.insert(server_tools.print_out, "\t>>>> Profanity filter function will not be loaded!!!")
 end

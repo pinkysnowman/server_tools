@@ -66,7 +66,7 @@ if enable == true then
 	    end
 	})
 
-	print("\t>>>> \"/kill\", \"/killme\" and \"/sethp\" Loaded!\n")
+	table.insert(server_tools.print_out, "\t>>>> \"/kill\", \"/killme\" and \"/sethp\" Loaded!")
 else
-	print("\t>>>> Damage is not enabled, \n\t     \"/kill\", \"/killme\" and \"/sethp\" not loaded!\n")
+	table.insert(server_tools.print_out, "\t>>>> Damage is not enabled, \n\t     \"/kill\", \"/killme\" and \"/sethp\" not loaded!")
 end

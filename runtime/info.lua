@@ -191,7 +191,7 @@ if server_tools.ui_loaded then
 			end
 		end,
 	})
-	print("\t>>>> unified_inventory button for player information is available!\n")
+	table.insert(server_tools.print_out, "\t>>>> unified_inventory button for player information is available!")
 end
 
-print("\t>>>> GUI for player information is available!\n")
+table.insert(server_tools.print_out, "\t>>>> GUI for player information is available!")

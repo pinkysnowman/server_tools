@@ -95,5 +95,5 @@ if disable ~= true then
 			return true, player.."'s item list \""..list.."\" has been cleared!"
 		end,
 	})
-	print("\t>>>> \"/empty_inv\" command Loaded!\n\t     Admin can now clear a players inventory list!\n")
+	table.insert(server_tools.print_out, "\t>>>> \"/empty_inv\" command Loaded!\n\t     *Admin can now clear a players inventory list!")
 end

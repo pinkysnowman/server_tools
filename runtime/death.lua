@@ -16,5 +16,5 @@ if minetest.setting_getbool("enable_death_msg") then
 		local plname = player:get_player_name()
 		minetest.chat_send_all(plname.." has died!")
 	end)
-	print("\t>>>> Player death messages enabled!\n")
+	table.insert(server_tools.print_out, "\t>>>> Player death messages enabled!")
 end

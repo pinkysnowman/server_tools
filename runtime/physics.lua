@@ -61,4 +61,4 @@ minetest.register_chatcommand("physics", {
 	end,
 })
 
-print("\t>>>> Player physics override Loaded!\n")
+table.insert(server_tools.print_out, "\t>>>> Player physics override Loaded!")

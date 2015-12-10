@@ -74,7 +74,7 @@ if enable == true then
 			end
 		end,
 	})
-	print("\t>>>> Whitelist function loaded!\n")
+	table.insert(server_tools.print_out, "\t>>>> Whitelist function loaded!")
 else
-	print("\t>>>> Whitelist function will not be loaded!\n")
+	table.insert(server_tools.print_out, "\t>>>> Whitelist function will not be loaded!")
 end

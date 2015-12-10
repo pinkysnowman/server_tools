@@ -15,7 +15,7 @@ local disable = minetest.setting_getbool("load_time_lag_hud")
 local hud_color = minetest.setting_get("hud_color")
 local add = ""
 if hud_color then 
-    add = "\t     *Color \""..hud_color.."\" was loaded!\n"
+    add = "\n\t     *Color \""..hud_color.."\" was loaded!"
 else
     hud_color = 0xFFFFFF
 end
@@ -119,7 +119,7 @@ if disable ~= false then
     minetest.register_on_leaveplayer(function(player)
             minetest.after(1,removehud,player)
     end)
-    print("\t>>>> Time and Lag HUD loaded!\n"..add)
+    table.insert(server_tools.print_out, "\t>>>> Time and Lag HUD loaded!"..add)
 else
-    print("\t>>>> Time and Lag HUD not loaded!\n")
+    table.insert(server_tools.print_out, "\t>>>> Time and Lag HUD not loaded!")
 end

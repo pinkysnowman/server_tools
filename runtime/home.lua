@@ -98,7 +98,7 @@ if override ~= false then
 		end,
 	})
 
-	print("\t>>>> \"/home\" and \"/sethome\" overrides loaded!\n")
+	table.insert(server_tools.print_out, "\t>>>> \"/home\" and \"/sethome\" overrides loaded!")
 else
-	print("\t>>>> \"/home\" and \"/sethome\" overrides not loaded!\n")
+	table.insert(server_tools.print_out, "\t>>>> \"/home\" and \"/sethome\" overrides not loaded!")
 end

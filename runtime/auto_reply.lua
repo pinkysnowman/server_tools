@@ -36,5 +36,5 @@ if server_tools.auto_reply then
 			end
 		end,
 	})
-	print("\t>>>> Auto reply bot is now loaded!\n")
+	table.insert(server_tools.print_out, "\t>>>> Auto reply bot is now loaded!")
 end

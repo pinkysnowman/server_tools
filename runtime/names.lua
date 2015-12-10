@@ -22,9 +22,9 @@ if disable ~= true then
 			end
 		end
 	end)
-	print("\t>>>> Playername filtering Loaded!\n\t     *Owner \""..owner_name.."\" exempted!\n")
+	table.insert(server_tools.print_out, "\t>>>> Playername filtering Loaded!\n\t     *Owner \""..owner_name.."\" exempted!")
 else
-	print("\t>>>> Playername filtering not Loaded!\n")
+	table.insert(server_tools.print_out, "\t>>>> Playername filtering not Loaded!")
 end
 
 --------------------------------------------------------------------------------------------
@@ -45,7 +45,7 @@ if enable == true then
 			end
 		end
 	end)
-	print("\t>>>> Playername \"CASE\" sensitive Loaded!\n")
+	table.insert(server_tools.print_out, "\t>>>> Playername \"CASE\" sensitive Loaded!")
 else
-	print("\t>>>> Playername \"CASE\" sensitive not Loaded!\n")
+	table.insert(server_tools.print_out, "\t>>>> Playername \"CASE\" sensitive not Loaded!")
 end

@@ -27,5 +27,5 @@ if minetest.setting_getbool("enable_privs_check_block") then
 				..minetest.privs_to_string(minetest.get_player_privs(param), ' ')
 		end,
 	})
-	print("\t>>>> \"/privs\" check will require admin level privileges!\n")
+	table.insert(server_tools.print_out, "\t>>>> \"/privs\" check will require admin level privileges!")
 end

@@ -59,10 +59,10 @@ if owner_color or admin_color or mod_color then
 	end
 	if mod_color then
 		if server_tools.m_color then 
-			mc = "\t     *All moderator's nametags will be colored!\n" 
+			mc = "\t     *All moderator's nametags will be colored!" 
 		else 
-			mc = "\t     *Moderator's nametag color missing form settings.txt!\n" 
+			mc = "\t     *Moderator's nametag color missing form settings.txt!" 
 		end
 	end
-	print("\t>>>> Nametag colors Loaded!\n "..oc..ac..mc)
+	table.insert(server_tools.print_out, "\t>>>> Nametag colors Loaded!\n "..oc..ac..mc)
 end

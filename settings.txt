@@ -99,4 +99,4 @@ server_tools.auto_reply = {
 }
 
 
-server_tools.load_spawn_cmd = "true"
+server_tools.load_spawn_cmd = true

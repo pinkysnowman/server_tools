@@ -76,5 +76,5 @@ if minetest.setting_getbool("enable_welcome") then
 		local plname = player:get_player_name()
 		minetest.chat_send_player("Welcome to "..server_name..welcome_msg)
 	end)
-	print("\t>>>> New player welcome message enabled!\n")
+	table.insert(server_tools.print_out, "\t>>>> New player welcome message enabled!")
 end

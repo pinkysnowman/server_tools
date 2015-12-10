@@ -30,6 +30,7 @@
 -- Load settings file ----------------------------------------------------------------------
 --------------------------------------------------------------------------------------------
 server_tools = {}
+server_tools.print_out = {}
 server_tools.modpath = minetest.get_modpath("server_tools")
 server_tools.runtimepath = server_tools.modpath.."/runtime"
 server_tools.worldpath = minetest.get_worldpath()
@@ -41,13 +42,13 @@ if not server_tools.settings then
 		""..server_tools.modpath.."/settings.txt\"!!!!!!\n")
 	return
 end
-print("========================================================================\n"..
-	  "[MOD] [server_tools ver: 2.0] Mod initializing.....\n")
+table.insert(server_tools.print_out, "========================================================================\n"..
+	  "[MOD] [server_tools ver: 2.0] Mod initializing......")
 if server_tools.ui_loaded then 
-	print("\t>>>> [MOD] [unified_inventory] was found!\n")
+	table.insert(server_tools.print_out, "\t>>>> [MOD] [unified_inventory] was found!")
 end
 if server_tools.irc_loaded then 
-	print("\t>>>> [MOD] [irc] was found!\n")
+	table.insert(server_tools.print_out, "\t>>>> [MOD] [irc] was found!")
 end
 dofile(server_tools.runtimepath.."/settime.lua")
 dofile(server_tools.runtimepath.."/privs_cmd.lua")
@@ -98,11 +99,21 @@ minetest.register_privilege("mod", {
 	give_to_singleplayer = true
 })
 
+minetest.register_chatcommand("server_tools", {
+	description = "Shows \"server_tools\" load status for easier ingame debug of mod!",
+	privs = {admin=true},
+	func = function(name)
+		return true, table.concat(server_tools.print_out, "\n")
+	end
+})
+
+table.insert(server_tools.print_out, "\t>>>> \"/server_tools\" cmd loaded for easier ingame debug of mod!")
+
 --------------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------------
 
-
-print("\n Please refer to the readme.txt for use of this mod.\n"..
+table.insert(server_tools.print_out, "\n Please refer to the readme.txt for use of this mod.\n"..
 	  " copyright 2015 Ginger Pollard (crazyginger72,cg72)\n"..
 	  "========================================================================")
+print(table.concat(server_tools.print_out, "\n\n"))

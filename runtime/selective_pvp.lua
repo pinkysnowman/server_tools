@@ -119,6 +119,6 @@ if not disable and minetest.setting_getbool("enable_damage") and minetest.settin
 				end
 			end,
 		})
-		print("\t>>>> unified_inventory PvP toggle button is available!\n")
+		table.insert(server_tools.print_out, "\t>>>> unified_inventory PvP toggle button is available!")
 	end
 end
