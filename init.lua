@@ -31,6 +31,7 @@
 --------------------------------------------------------------------------------------------
 server_tools = {}
 server_tools.print_out = {}
+server_tools.owner = minetest.setting_get("name")
 server_tools.modpath = minetest.get_modpath("server_tools")
 server_tools.runtimepath = server_tools.modpath.."/runtime"
 server_tools.worldpath = minetest.get_worldpath()
