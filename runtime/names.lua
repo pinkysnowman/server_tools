@@ -21,7 +21,8 @@ if disable ~= true then
 			end
 		end
 	end)
-	table.insert(server_tools.print_out, "\t>>>> Playername filtering Loaded!\n\t     *Owner \""..owner_name.."\" exempted!")
+	table.insert(server_tools.print_out, "\t>>>> Playername filtering Loaded!\n\t"
+									   .."     *Owner \""..server_tools.owner.."\" exempted!")
 else
 	table.insert(server_tools.print_out, "\t>>>> Playername filtering not Loaded!")
 end
