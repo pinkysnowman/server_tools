@@ -14,6 +14,19 @@ local owner_color = minetest.setting_get("server_tools.owner_color")
 local admin_color = minetest.setting_get("server_tools.admin_color")
 local mod_color = minetest.setting_get("server_tools.mod_color")
 
+if owner_color and owner_color ~= "true" then
+	local ca,cr,cg,cb = string.match(owner_color, "^([%d.-]+)[, ] *([%d.-]+)[, ] *([%d.-]+)[, ] *([%d.-]+)$")
+	owner_color = {a=ca,r=cr,g=cg,b=cb}
+end
+if admin_color and admin_color ~= "true" then
+	local ca,cr,cg,cb = string.match(admin_color, "^([%d.-]+)[, ] *([%d.-]+)[, ] *([%d.-]+)[, ] *([%d.-]+)$")
+	admin_color = {a=ca,r=cr,g=cg,b=cb}
+end
+if mod_color and mod_color ~= "true" then
+	local ca,cr,cg,cb = string.match(mod_color, "^([%d.-]+)[, ] *([%d.-]+)[, ] *([%d.-]+)[, ] *([%d.-]+)$")
+	mod_color = {a=ca,r=cr,g=cg,b=cb}
+end
+
 minetest.register_on_joinplayer(function(player)
 	local plname = player:get_player_name()
 	local special = minetest.setting_get(plname)
@@ -41,24 +54,30 @@ if owner_color or admin_color or mod_color then
 	local oc, ac, mc
 	if owner_color then
 		if server_tools.o_color then 
-			oc = "\t     *Owner's nametag will be colored!\n" 
+			oc = "\n\t     *Owner's nametag will be colored!" 
 		else 
-			oc = "\t     *Owner's nametag color missing form settings.txt!\n" 
+			oc = "\n\t     *Owner's nametag color missing form settings.txt!" 
 		end
+	else
+		oc = ""
 	end
 	if admin_color then
 		if server_tools.a_color then 
-			ac = "\t     *All admin's nametags will be colored!\n" 
+			ac = "\n\t     *All admin's nametags will be colored!" 
 		else 
-			ac = "\t     *Admin's nametag color missing form settings.txt!\n" 
+			ac = "\n\t     *Admin's nametag color missing form settings.txt!" 
 		end
+	else
+		ac = ""
 	end
 	if mod_color then
 		if server_tools.m_color then 
-			mc = "\t     *All moderator's nametags will be colored!" 
+			mc = "\n\t     *All moderator's nametags will be colored!" 
 		else 
-			mc = "\t     *Moderator's nametag color missing form settings.txt!" 
+			mc = "\n\t     *Moderator's nametag color missing form settings.txt!" 
 		end
+	else
+		mc = ""
 	end
-	table.insert(server_tools.print_out, "\t>>>> Nametag colors Loaded!\n"..oc..ac..mc)
+	table.insert(server_tools.print_out, "\t>>>> Nametag colors Loaded!"..oc..ac..mc)
 end
