@@ -18,7 +18,8 @@ minetest.register_on_joinplayer(function(player)
 	local plname = player:get_player_name()
 	local special = minetest.setting_get(plname)
 	if special then
-		player:set_nametag_attributes({color = {special}})
+		local ca,cr,cg,cb = string.match(special, "^([%d.-]+)[, ] *([%d.-]+)[, ] *([%d.-]+)[, ] *([%d.-]+)$")
+		player:set_nametag_attributes({color = {a=ca,r=cr,g=cg,b=cb}})
 		minetest.log("action", "Player "..plname.."'s special nametag color loaded! \""..special.."\"")
 		return
 	end
