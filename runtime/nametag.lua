@@ -19,7 +19,7 @@ minetest.register_on_joinplayer(function(player)
 	local special = minetest.setting_get(plname)
 	if special then
 		player:set_nametag_attributes({color = special})
-		minetest.log("action", "Player "..plname.."'s special nametag color loaded!")
+		minetest.log("action", "Player "..plname.."'s special nametag color loaded! "..special)
 		return
 	end
 	if player:get_player_name() == server_tools.owner and owner_color then
