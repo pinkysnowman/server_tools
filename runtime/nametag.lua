@@ -10,7 +10,6 @@
 -- Admin and moderator colored nametags function -------------------------------------------
 --------------------------------------------------------------------------------------------
 
-local owner_name = minetest.setting_get("name") --Playername listed in the .conf
 local owner_color = minetest.setting_get("server_tools.owner_color")
 local admin_color = minetest.setting_get("server_tools.admin_color")
 local mod_color = minetest.setting_get("server_tools.mod_color")
@@ -23,11 +22,7 @@ minetest.register_on_joinplayer(function(player)
 		minetest.log("action", "Player "..plname.."'s special nametag color loaded!")
 		return
 	end
-	if player:get_player_name() == "Kimmy" then
-		player:set_nametag_attributes({color = {a=255, r=255, g=120, b=000}})
-		return
-	end
-	if player:get_player_name() == owner_name and owner_color then
+	if player:get_player_name() == server_tools.owner and owner_color then
 		player:set_nametag_attributes({color = server_tools.o_color })
 		return
 	end
@@ -64,5 +59,5 @@ if owner_color or admin_color or mod_color then
 			mc = "\t     *Moderator's nametag color missing form settings.txt!" 
 		end
 	end
-	table.insert(server_tools.print_out, "\t>>>> Nametag colors Loaded!\n "..oc..ac..mc)
+	table.insert(server_tools.print_out, "\t>>>> Nametag colors Loaded!\n"..oc..ac..mc)
 end

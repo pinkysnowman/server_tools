@@ -13,11 +13,10 @@
 
 local disable = minetest.setting_getbool("disable_playername_filter")
 if disable ~= true then
-	local owner_name = minetest.setting_get("name")
 	minetest.register_on_prejoinplayer(function(name, ip)
 		local lname = name:lower()
 		for filter, reason in pairs(server_tools.disallowed_names) do
-			if lname:find(filter) and name ~= owner_name then
+			if lname:find(filter) and name ~= server_tools.owner then
 				return reason
 			end
 		end
